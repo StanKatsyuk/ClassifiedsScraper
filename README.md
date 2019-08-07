@@ -11,7 +11,7 @@ A Selenium powered web-scraper used to scrape a popular classifieds website for 
 5. Profit
 
 # Built With
-Python 3 (3.7.1) 
+Python 3 (3.7.1)  
 Selenium 3.141.0 
 
 # Authors
