@@ -10,11 +10,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from collections import OrderedDict
 
+driver = os.environ.get('DRIVER_PATH')
+assert driver, "WebDriver env_var path not set for 'DRIVER_PATH', please set it before running this script"
 
 class CraiglistScraper(object):
-    driver = os.environ.get('DRIVER_PATH')
-    assert driver, "WebDriver env_var path not set for 'DRIVER_PATH', please set it before running this script"
-
     def __init__(self, location, car, make, minAutoYear, maxAutoYear, radius):
         self.location = location
         self.car = car
@@ -24,7 +23,7 @@ class CraiglistScraper(object):
         self.radius = radius
 
         self.url = "https://sfbay.craigslist.org/search/sss?query=Corolla&auto_make_model=Toyota+Corolla&min_auto_year=2003&max_auto_year=2008"
-        self.driver = webdriver.Chrome(executable_path="os.environ['DRIVER_PATH']")
+        self.driver = webdriver.Chrome(executable_path=driver)
         self.delay = 3
 
     def load_craigslist_url(self):
@@ -117,6 +116,7 @@ urls = scraper.extract_post_urls()
 
 scraper.write_to_csv()
 scraper.quit()
+
 
 
 
