@@ -22,7 +22,7 @@ class CraiglistScraper(object):
         self.maxAutoYear = maxAutoYear
         self.radius = radius
 
-        self.url = "https://sfbay.craigslist.org/search/sss?query=Corolla&auto_make_model=Toyota+Corolla&min_auto_year=2003&max_auto_year=2008"
+        self.url = f"https://{location}.craigslist.org/search/sss?query={car}&auto_make_model={make}+{car}&min_auto_year={minAutoYear}&max_auto_year={maxAutoYear}"
         self.driver = webdriver.Chrome(executable_path=driver)
         self.delay = 3
 
@@ -79,7 +79,7 @@ class CraiglistScraper(object):
     def write_to_csv(self):
         today = datetime.now().strftime('%d-%m')
         user_desktop = os.path.expanduser("~/Desktop")
-        output_file = os.path.join(user_desktop, f'classifieds_output{today}.csv')
+        output_file = os.path.join(user_desktop, f'{location}_{car}_{make}_classifieds_output{today}.csv')
 
         with open(output_file, mode='w', encoding="utf-8") as csv1:
             title = ''
