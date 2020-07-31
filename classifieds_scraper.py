@@ -1,6 +1,9 @@
-import urllib.request
 import csv
 import os
+
+from bs4 import BeautifulSoup
+from collections import OrderedDict
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,9 +13,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from datetime import datetime
 from collections import OrderedDict
-
-driver = os.environ.get('DRIVER_PATH')
-assert driver, "WebDriver env_var path not set for 'DRIVER_PATH', please set it before running this script"
 
 
 class CraiglistScraper(object):
@@ -24,7 +24,8 @@ class CraiglistScraper(object):
         self.maxAutoYear = maxAutoYear
         self.radius = radius
 
-        self.url = f"https://{location}.craigslist.org/search/sss?query={car}&auto_make_model={make}+{car}&min_auto_year={minAutoYear}&max_auto_year={maxAutoYear}"
+        self.url = f"https://{location}.craigslist.org/search/sss?query={car}&auto_make_model={make}+" \
+                   f"{car}&min_auto_year={minAutoYear}&max_auto_year={maxAutoYear}"
         self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
         self.delay = 3
 
@@ -97,7 +98,7 @@ class CraiglistScraper(object):
 
             for title, price, date, url in (zip(titles, prices, dates, urls)):
                 writer.writerow(
-                    {'title': title, 'price': price, 'date': date, 'url': url})  ### writes one value per row
+                    {'title': title, 'price': price, 'date': date, 'url': url})
 
             print(f'Finished, output file is: {output_file}')
 
