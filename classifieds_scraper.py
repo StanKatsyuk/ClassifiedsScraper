@@ -10,12 +10,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-from datetime import datetime
-from collections import OrderedDict
+from selenium.webdriver.chrome.options import Options
 
 
 class CraiglistScraper(object):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+
     def __init__(self, location, car, make, minAutoYear, maxAutoYear, radius):
         self.location = location
         self.car = car
@@ -26,7 +27,7 @@ class CraiglistScraper(object):
 
         self.url = f"https://{location}.craigslist.org/search/sss?query={car}&auto_make_model={make}+" \
                    f"{car}&min_auto_year={minAutoYear}&max_auto_year={maxAutoYear}"
-        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=self.chrome_options)
         self.delay = 3
 
     def load_craigslist_url(self):
@@ -34,7 +35,7 @@ class CraiglistScraper(object):
         try:
             wait = WebDriverWait(self.driver, self.delay)
             wait.until(EC.presence_of_element_located((By.ID, "searchform")))
-            print("Page is ready")
+            print(f"Parsing: {self.url}")
             self.page_html = self.driver.page_source
         except TimeoutException:
             print("Loading took too much time")
