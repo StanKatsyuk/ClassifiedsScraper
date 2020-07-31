@@ -6,12 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from datetime import datetime
 from collections import OrderedDict
 
 driver = os.environ.get('DRIVER_PATH')
 assert driver, "WebDriver env_var path not set for 'DRIVER_PATH', please set it before running this script"
+
 
 class CraiglistScraper(object):
     def __init__(self, location, car, make, minAutoYear, maxAutoYear, radius):
@@ -23,7 +25,7 @@ class CraiglistScraper(object):
         self.radius = radius
 
         self.url = f"https://{location}.craigslist.org/search/sss?query={car}&auto_make_model={make}+{car}&min_auto_year={minAutoYear}&max_auto_year={maxAutoYear}"
-        self.driver = webdriver.Chrome(executable_path=driver)
+        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
         self.delay = 3
 
     def load_craigslist_url(self):
@@ -32,6 +34,7 @@ class CraiglistScraper(object):
             wait = WebDriverWait(self.driver, self.delay)
             wait.until(EC.presence_of_element_located((By.ID, "searchform")))
             print("Page is ready")
+            self.page_html = self.driver.page_source
         except TimeoutException:
             print("Loading took too much time")
 
@@ -69,8 +72,8 @@ class CraiglistScraper(object):
 
     def extract_post_urls(self):
         url_list = []
-        html_page = urllib.request.urlopen(self.url)
-        soup = BeautifulSoup(html_page, "lxml")
+
+        soup = BeautifulSoup(self.driver.page_source, "lxml")
         for link in soup.findAll("a", {"class": "result-title hdrlnk"}):
             print(link["href"])
             url_list.append(link["href"])
@@ -93,12 +96,15 @@ class CraiglistScraper(object):
             urls = scraper.extract_post_urls()
 
             for title, price, date, url in (zip(titles, prices, dates, urls)):
-                writer.writerow({'title': title, 'price': price, 'date': date, 'url': url}) ### writes one value per row
+                writer.writerow(
+                    {'title': title, 'price': price, 'date': date, 'url': url})  ### writes one value per row
 
             print(f'Finished, output file is: {output_file}')
+
     def quit(self):
         self.driver.close()
         self.driver.quit()
+
 
 location = input('Please input a market to search (e.g "sfbay")\n')
 car = input('Please input a car model to search (e.g "Corolla")\n')
@@ -116,8 +122,3 @@ urls = scraper.extract_post_urls()
 
 scraper.write_to_csv()
 scraper.quit()
-
-
-
-
-
